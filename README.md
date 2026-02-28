@@ -6,7 +6,7 @@ Built with React (Vite), TypeScript, Node.js, Socket.IO, and MongoDB Atlas.
 
 ---
 
-## 🚀 Features
+##  Features
 
 - Real-time poll creation and voting
 - Live vote percentage updates
@@ -18,7 +18,7 @@ Built with React (Vite), TypeScript, Node.js, Socket.IO, and MongoDB Atlas.
 
 ---
 
-## 🏗 Tech Stack
+##  Tech Stack
 
 ### Frontend
 - React
