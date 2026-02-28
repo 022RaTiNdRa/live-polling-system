@@ -2,12 +2,22 @@ import React from "react";
 
 interface ChatPopupProps {
   open: boolean;
+  /** if provided, will be shown in parentheses on the participants tab */
+  participantCount?: number;
   
   children?: React.ReactNode | ((activeTab: 'chat' | 'participants') => React.ReactNode);
 }
 
-export default function ChatPopup({ open, children }: ChatPopupProps) {
+export default function ChatPopup({ open, participantCount, children }: ChatPopupProps) {
   const [activeTab, setActiveTab] = React.useState<'chat' | 'participants'>('chat');
+
+  // when we open the popup and there are participants, default to that tab so
+  // the teacher doesn't have to manually switch every time.
+  React.useEffect(() => {
+    if (open && participantCount && participantCount > 0) {
+      setActiveTab('participants');
+    }
+  }, [open, participantCount]);
 
   if (!open) return null;
 
@@ -58,7 +68,7 @@ export default function ChatPopup({ open, children }: ChatPopupProps) {
             borderBottom: activeTab === 'participants' ? '3px solid #7765DA' : '3px solid transparent',
           }}
         >
-          Participants
+          Participants{participantCount !== undefined ? ` (${participantCount})` : ''}
         </button>
       </div>
 

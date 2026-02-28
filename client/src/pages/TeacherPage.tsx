@@ -41,6 +41,12 @@ export default function TeacherPage() {
 
 
   useEffect(() => {
+    // request initial presence so teacher sees students already online
+    socket.emit("get_presence", (payload: { count: number; students: string[] }) => {
+      setStudentCount(payload.count);
+      setParticipants(payload.students);
+    });
+
     socket.on("poll_created", (data) => {
       setPoll(data);
       setEnded(false);
@@ -378,6 +384,10 @@ export default function TeacherPage() {
 
     return (
       <>
+        {/* show current participant count prominently */}
+        <div style={{ marginBottom: "var(--space-3)", fontSize: 14, color: "var(--color-subtext)" }}>
+          Students online: {studentCount}
+        </div>
         <TeacherPollView
           question={poll.question}
           options={poll.results}
@@ -393,7 +403,7 @@ export default function TeacherPage() {
               return next;
             });
           }} unreadCount={unreadCount} />
-        <ChatPopup open={isChatOpen}>
+        <ChatPopup open={isChatOpen} participantCount={participants.length}>
           {(tab: 'chat' | 'participants') =>
             tab === 'chat' ? (
               <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>

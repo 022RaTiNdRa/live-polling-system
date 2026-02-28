@@ -40,6 +40,11 @@ export const registerPollSocket = (io: Server) => {
       io.emit("presence_update", { count: getStudentCount(), students: getAllStudents() });
     });
 
+    // teacher or any client can request the current presence snapshot
+    socket.on("get_presence", (callback: (payload: { count: number; students: string[] }) => void) => {
+      callback({ count: getStudentCount(), students: getAllStudents() });
+    });
+
     socket.on("get_active_poll", async (studentId: string, callback) => {
       try {
         if (!isDbConnected()) {
