@@ -17,7 +17,7 @@ const io = new Server(httpServer, {
 
 const PORT = appConfig.port;
 
-console.log("URI:", process.env.MONGO_URI);
+
 connectDB();
 
 app.get("/", (_req, res) => {
