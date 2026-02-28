@@ -1,9 +1,11 @@
 import { io } from "socket.io-client";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:5000";
-export const socket = io(SERVER_URL, {
-  autoConnect: false,
+export const socket = io(BACKEND_URL, {
   transports: ["websocket"],
-  timeout: 10000,
+  reconnection: true,
+  reconnectionAttempts: 20,
+  reconnectionDelay: 2000,
+  timeout: 60000,
 });
