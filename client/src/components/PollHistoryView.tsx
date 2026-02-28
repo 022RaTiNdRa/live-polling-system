@@ -37,7 +37,7 @@ export default function PollHistoryView({ polls, onBack }: Props) {
         ) : (
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
-            {polls.map((poll, idx) => (
+            {polls.map((poll) => (
               <div key={poll._id} style={{ width: '100%', maxWidth: 'none' }}>
                 <div style={{ borderRadius: 8, border: '1px solid #e0e0e0', overflow: 'hidden', background: 'white' }}>
                   <div style={{ background: '#3a3a3a', color: '#fff', padding: '18px 28px', fontSize: 16, fontWeight: 600 }}>

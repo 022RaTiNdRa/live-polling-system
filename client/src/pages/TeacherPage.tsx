@@ -7,9 +7,9 @@ import ChatToggle from "../components/ChatToggle";
 import ChatPopup from "../components/ChatPopup";
 import ChatMessageList from "../components/ChatMessageList";
 import ChatInput from "../components/ChatInput";
-  import TeacherPollView from "../components/TeacherPollView";
+import TeacherPollView from "../components/TeacherPollView";
 import PollCard from "../components/PollCard";
-  import PollHistoryView from "../components/PollHistoryView";
+import PollHistoryView from "../components/PollHistoryView";
 
 export default function TeacherPage() {
   const { socket, connected } = useSocket();
@@ -24,7 +24,6 @@ export default function TeacherPage() {
   type ChatMessage = { pollId: string; name: string; text: string; ts: number; studentId?: string };
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [ended, setEnded] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [studentCount, setStudentCount] = useState(0);
 
   const [participants, setParticipants] = useState<string[]>([]);
@@ -40,27 +39,6 @@ export default function TeacherPage() {
 
   const [dbConnected, setDbConnected] = useState(true); // track server DB health
 
-  useEffect(() => {
-    if (!poll) return;
-
-    const interval = setInterval(() => {
-      const elapsed = Math.floor(
-        (Date.now() - new Date(poll.startedAt).getTime()) / 1000
-      );
-
-      const remaining = poll.duration - elapsed;
-
-      if (remaining <= 0) {
-        setTimeLeft(0);
-        clearInterval(interval);
-        return;
-      }
-
-      setTimeLeft(remaining);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [poll]);
 
   useEffect(() => {
     socket.on("poll_created", (data) => {
@@ -84,7 +62,6 @@ export default function TeacherPage() {
     socket.on("poll_closed", (data) => {
       setPoll(data);
       setEnded(true);
-      setTimeLeft(null);
       setTypingUsers([]);
     });
 
@@ -404,9 +381,6 @@ export default function TeacherPage() {
         <TeacherPollView
           question={poll.question}
           options={poll.results}
-          timeLeft={timeLeft}
-          participants={participants.map((id) => ({ sessionId: id, name: "" }))}
-          onKickStudent={handleKickStudent}
           onAskNewQuestion={resetForNewPoll}
         />
         <ChatToggle onClick={() => {

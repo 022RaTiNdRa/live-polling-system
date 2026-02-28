@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 
 type Option = {
   optionId: string;
@@ -7,26 +7,17 @@ type Option = {
   percentage: number;
 };
 
-type Participant = {
-  sessionId: string;
-  name: string;
-};
+
 
 type Props = {
   question: string;
   options: Option[];
-  timeLeft?: number | null;
-  participants?: Participant[];
-  onKickStudent?: (sessionId: string) => void;
   onAskNewQuestion?: () => void;
 };
 
 export default function TeacherPollView({
   question,
   options,
-  timeLeft,
-  participants = [],
-  onKickStudent,
   onAskNewQuestion,
 }: Props) {
   
