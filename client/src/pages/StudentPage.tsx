@@ -188,7 +188,11 @@ export default function StudentPage() {
         onSubmit={(_enteredName) => {
           setJoined(true);
 
-          socket.emit("student_join", sessionId);
+          // set local display name first so presence includes the name
+          setDisplayName(_enteredName);
+
+          // emit object with studentId and name so server can store/display it
+          socket.emit("student_join", { studentId: sessionId, name: _enteredName });
 
           socket.emit("get_active_poll", sessionId, (res: any) => {
             if (res.success && res.poll) {
@@ -203,8 +207,6 @@ export default function StudentPage() {
               }
             }
           });
-
-          setDisplayName(_enteredName);
         }}
       />
     );

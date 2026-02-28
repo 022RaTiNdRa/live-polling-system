@@ -23,7 +23,12 @@ export const registerPollSocket = (io: Server) => {
 
     socket.emit("server_status", { dbConnected: isDbConnected() });
 
-    socket.on("student_join", async (studentId: string) => {
+    socket.on("student_join", async (payload: any) => {
+      // payload can be either a string studentId (legacy) or an object { studentId, name }
+      const studentId = typeof payload === "string" ? payload : payload?.studentId;
+      const name = typeof payload === "object" && payload ? payload.name : undefined;
+
+      if (!studentId) return;
 
       const active = await pollController.getActivePoll();
       if (active && isKicked(active._id.toString(), studentId)) {
@@ -31,7 +36,7 @@ export const registerPollSocket = (io: Server) => {
         return;
       }
 
-      addStudent(studentId, socket.id);
+      addStudent(studentId, socket.id, name);
       io.emit("presence_update", { count: getStudentCount(), students: getAllStudents() });
     });
 
@@ -41,9 +46,12 @@ export const registerPollSocket = (io: Server) => {
     });
 
     // teacher or any client can request the current presence snapshot
-    socket.on("get_presence", (callback: (payload: { count: number; students: string[] }) => void) => {
-      callback({ count: getStudentCount(), students: getAllStudents() });
-    });
+    socket.on(
+      "get_presence",
+      (callback: (payload: { count: number; students: { sessionId: string; name?: string }[] }) => void) => {
+        callback({ count: getStudentCount(), students: getAllStudents() });
+      }
+    );
 
     socket.on("get_active_poll", async (studentId: string, callback) => {
       try {

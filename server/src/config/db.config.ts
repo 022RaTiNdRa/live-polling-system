@@ -12,17 +12,17 @@ export const connectDB = async () => {
         bufferCommands: false,
       });
 
-      
+      // Optional ping check
       if (mongoose.connection.db) {
         await mongoose.connection.db.admin().ping();
       }
 
       _isConnected = true;
-      console.log("Database connected to", uri);
+      console.log("Database connected successfully");
       return true;
     } catch (err: any) {
-      console.error("DB ERROR connecting to", uri, err.message || err);
       _isConnected = false;
+      console.error("Database connection error:", err.message || err);
       return false;
     }
   };
@@ -33,15 +33,15 @@ export const connectDB = async () => {
   if (atlasUri) {
     const ok = await tryConnect(atlasUri);
     if (ok) return;
-    console.log("Falling back to local MongoDB...");
+    console.log("Atlas connection failed. Falling back to local MongoDB...");
   } else {
-    console.log("MONGO_URI not set, using local MongoDB");
+    console.log("MONGO_URI not set. Using local MongoDB...");
   }
 
-  
   await tryConnect(localUri);
 
   if (!_isConnected && process.env.NODE_ENV === "production") {
+    console.error("Database connection failed in production. Exiting...");
     process.exit(1);
   }
 };

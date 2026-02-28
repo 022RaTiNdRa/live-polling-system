@@ -26,7 +26,7 @@ export default function TeacherPage() {
   const [ended, setEnded] = useState(false);
   const [studentCount, setStudentCount] = useState(0);
 
-  const [participants, setParticipants] = useState<string[]>([]);
+  const [participants, setParticipants] = useState<{ sessionId: string; name?: string }[]>([]);
 
   
   const [isChatOpen, setIsChatOpen] = useState(false);
@@ -42,10 +42,13 @@ export default function TeacherPage() {
 
   useEffect(() => {
     // request initial presence so teacher sees students already online
-    socket.emit("get_presence", (payload: { count: number; students: string[] }) => {
-      setStudentCount(payload.count);
-      setParticipants(payload.students);
-    });
+    socket.emit(
+      "get_presence",
+      (payload: { count: number; students: { sessionId: string; name?: string }[] }) => {
+        setStudentCount(payload.count);
+        setParticipants(payload.students);
+      }
+    );
 
     socket.on("poll_created", (data) => {
       setPoll(data);
@@ -71,7 +74,7 @@ export default function TeacherPage() {
       setTypingUsers([]);
     });
 
-    const handlePresence = (payload: { count: number; students: string[] }) => {
+    const handlePresence = (payload: { count: number; students: { sessionId: string; name?: string }[] }) => {
       setStudentCount(payload.count);
       setParticipants(payload.students);
     };
@@ -79,7 +82,7 @@ export default function TeacherPage() {
     socket.on("presence_update", handlePresence);
 
     
-    socket.on("participants_update", (list) => {
+    socket.on("participants_update", (list: { sessionId: string; name?: string }[]) => {
       setParticipants(list);
     });
 
@@ -180,8 +183,7 @@ export default function TeacherPage() {
   };
 
   const handleKickStudent = (sessionId: string) => {
-    
-    setParticipants((prev) => prev.filter((p) => p !== sessionId));
+    setParticipants((prev) => prev.filter((p) => p.sessionId !== sessionId));
     socket.emit("kick_student", { pollId: poll.pollId, studentId: sessionId });
   };
 
@@ -433,9 +435,9 @@ export default function TeacherPage() {
                     No students joined yet
                   </div>
                 ) : (
-                  participants.map((id) => (
+                  participants.map((p) => (
                     <div
-                      key={id}
+                      key={p.sessionId}
                       style={{
                         display: 'flex',
                         justifyContent: 'space-between',
@@ -447,10 +449,10 @@ export default function TeacherPage() {
                         fontSize: 13,
                       }}
                     >
-                      <span>{id.slice(0, 6)}</span>
+                      <span>{p.name && p.name.length ? p.name : p.sessionId.slice(0, 6)}</span>
 
                       <button
-                        onClick={() => handleKickStudent(id)}
+                        onClick={() => handleKickStudent(p.sessionId)}
                         style={{
                           background: 'none',
                           border: 'none',
